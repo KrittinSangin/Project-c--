@@ -7,9 +7,14 @@
 using namespace std;
 
 
-
-
-
+void waitForMouseClick(sf::RenderWindow& window) {
+    sf::Event event;
+    while (window.waitEvent(event)) {
+        if (event.type == sf::Event::MouseButtonPressed) {
+            return; // Exit when a mouse button is pressed
+        }
+    }
+}
 void OutputRandomizedChar(char *Array1,vector<char> v,int size){
     for(int i = 0;i < 3;i++){
         int randint = rand()%size;
@@ -17,42 +22,64 @@ void OutputRandomizedChar(char *Array1,vector<char> v,int size){
     }
     
 }
-sf::Text checkCondition(char *CurrentArray){
+
+sf::Text checkCondition(char *CurrentArray, sf::RenderWindow& window) {
     sf::Text Status;
-    if((CurrentArray[0] == CurrentArray[1]) && (CurrentArray[1]== CurrentArray[2]) &&(CurrentArray[0]== CurrentArray[2])){ 
-        Status.setString("Won");
-        Status.setCharacterSize(30);
-        Status.setFillColor(sf::Color::White);
-        Status.setPosition(300,250);
-        
-
-
+    static sf::Font font; // Load font once
+    if (!font.loadFromFile("verdana.ttf")) {
+        std::cerr << "Error: Could not load verdana.ttf\n";
     }
+    Status.setFont(font);
+    Status.setCharacterSize(30);
+    Status.setFillColor(sf::Color::White);
+    Status.setPosition(300, 250);
+
+    if ((CurrentArray[0] == CurrentArray[1]) && (CurrentArray[1] == CurrentArray[2])) {
+        Status.setString("Won!");
+    } else {
+        Status.setString("Lost!");
+    }
+
     return Status;
 }
 
-void SpinSlot(int chips, char *RandomizedChar ,vector<char> BaseChar ,int vecsize,sf::RenderWindow& window){
-    sf::Text defaultchipdisplay;
-    sf::Text chipnum;
+
+void SpinSlot(int chips, char *RandomizedChar, vector<char> BaseChar, int vecsize, sf::RenderWindow& window, sf::Font& font) {
     sf::Text CurrentElement;
+    CurrentElement.setFont(font); // Set font
     CurrentElement.setCharacterSize(30);
     CurrentElement.setFillColor(sf::Color::Yellow);
-    CurrentElement.setPosition(100,250);
-    do{
-    OutputRandomizedChar(RandomizedChar,BaseChar,vecsize);
-    for(int i = 0;i < 3;i++){
-       CurrentElement.setString(RandomizedChar[i]);
-        window.draw(CurrentElement);
-        CurrentElement.setPosition(100+(50*i),250);
-        window.display();
+
+    sf::Text Status;
+    Status.setFont(font);
+    Status.setCharacterSize(30);
+    Status.setFillColor(sf::Color::White);
+    Status.setPosition(300, 250);
+
+    while (chips > 0) {
+        OutputRandomizedChar(RandomizedChar, BaseChar, vecsize);
+
+        window.clear(sf::Color::Black); // Clear before drawing new elements
+
+        // Display each randomized character
+        for (int i = 0; i < 3; i++) {
+            CurrentElement.setString(std::string(1, RandomizedChar[i])); // Convert char to string
+            CurrentElement.setPosition(100 + (50 * i), 250); // Set position before drawing
+            window.draw(CurrentElement);
+        }
+
+        // Update status text
+        Status = checkCondition(RandomizedChar, window);
+        window.draw(Status); // Draw the status text
+
+        window.display(); // Display everything
+
+        waitForMouseClick(window); // Wait for user input
+
+        chips--; // Reduce chips
     }
-    
-    checkCondition(RandomizedChar);
-   
-    //cin.get();
-    chips--;
-    }while(chips > 0);
 }
+
 
 int eventHandler(){
 
@@ -60,67 +87,35 @@ int eventHandler(){
 }
 
 int main() {
-
-    
-    vector<char> BaseChar= {'A','B'};
+    vector<char> BaseChar = {'A', 'B'};
     int chips = 10;
-    int vecsize =  BaseChar.size();
+    int vecsize = BaseChar.size();
     srand(time(0));
     char RandomizedChar[3] = {};
-    //SpinSlot(chips,RandomizedChar,BaseChar,vecsize);//input 1.chips 2.basechar 3.vecsize
-  
-    
 
-
-
-
-
-
-    // Create a window with a title
     sf::RenderWindow window(sf::VideoMode(800, 600), "SFML Test");
 
-    // Load a font
     sf::Font font;
     if (!font.loadFromFile("verdana.ttf")) {
         std::cerr << "Error: Could not load verdana.ttf\n";
         return -1;
     }
 
-    // Create a text object
-    sf::Text text("Beebob", font, 50);
-    text.setFillColor(sf::Color::Yellow);
-    text.setStyle(sf::Text::Bold);
+    // Call the function once and display results
+    SpinSlot(chips, RandomizedChar, BaseChar, vecsize, window, font);
 
-    // Center the text
-    sf::FloatRect textBounds = text.getLocalBounds();
-    text.setOrigin(textBounds.width / 2.0f, textBounds.height / 2.0f);
-    text.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f);
-
-
-
-
-    // Main loop
+    // Main event loop
     while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event)) {//run your functions here
+        while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-            
-
-
-
-
         }
-
-
-        window.clear(sf::Color::Black);
-        SpinSlot(chips,RandomizedChar,BaseChar,vecsize,window);
     }
 
     return 0;
 }
-
 
 
 
