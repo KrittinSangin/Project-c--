@@ -1,7 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <iostream> // For debugging
 #include <iostream>
-#include "Boss1_Slum.h"
 #include <vector>
 
 using namespace std;
@@ -25,14 +24,14 @@ void OutputRandomizedChar(char *Array1,vector<char> v,int size){
 
 sf::Text checkCondition(char *CurrentArray, sf::RenderWindow& window) {
     sf::Text Status;
-    static sf::Font font; // Load font once
+    static sf::Font font;
     if (!font.loadFromFile("verdana.ttf")) {
         std::cerr << "Error: Could not load verdana.ttf\n";
     }
     Status.setFont(font);
     Status.setCharacterSize(30);
     Status.setFillColor(sf::Color::White);
-    Status.setPosition(300, 250);
+    Status.setPosition(380, 200);
 
     if ((CurrentArray[0] == CurrentArray[1]) && (CurrentArray[1] == CurrentArray[2])) {
         Status.setString("Won!");
@@ -46,7 +45,7 @@ sf::Text checkCondition(char *CurrentArray, sf::RenderWindow& window) {
 
 void SpinSlot(int chips, char *RandomizedChar, vector<char> BaseChar, int vecsize, sf::RenderWindow& window, sf::Font& font) {
     sf::Text CurrentElement;
-    CurrentElement.setFont(font); // Set font
+    CurrentElement.setFont(font);
     CurrentElement.setCharacterSize(30);
     CurrentElement.setFillColor(sf::Color::Yellow);
 
@@ -56,27 +55,29 @@ void SpinSlot(int chips, char *RandomizedChar, vector<char> BaseChar, int vecsiz
     Status.setFillColor(sf::Color::White);
     Status.setPosition(300, 250);
 
-    while (chips > 0) {
+    sf::Text Chips;
+    Chips.setFont(font);
+    Chips.setCharacterSize(30);
+    Chips.setFillColor(sf::Color::White);
+    Chips.setPosition(400, 300);
+
+    while (chips >= 0) {
+
         OutputRandomizedChar(RandomizedChar, BaseChar, vecsize);
 
-        window.clear(sf::Color::Black); // Clear before drawing new elements
-
-        // Display each randomized character
+        window.clear(sf::Color::Black); 
         for (int i = 0; i < 3; i++) {
-            CurrentElement.setString(std::string(1, RandomizedChar[i])); // Convert char to string
-            CurrentElement.setPosition(100 + (50 * i), 250); // Set position before drawing
+            CurrentElement.setString(std::string(1, RandomizedChar[i]));
+            CurrentElement.setPosition(350 + (50 * i), 250);
             window.draw(CurrentElement);
         }
-
-        // Update status text
+        Chips.setString(to_string(chips));
+        window.draw(Chips);
         Status = checkCondition(RandomizedChar, window);
-        window.draw(Status); // Draw the status text
-
-        window.display(); // Display everything
-
-        waitForMouseClick(window); // Wait for user input
-
-        chips--; // Reduce chips
+        window.draw(Status); 
+        window.display(); 
+        waitForMouseClick(window);
+        chips--;
     }
 }
 
@@ -87,7 +88,7 @@ int eventHandler(){
 }
 
 int main() {
-    vector<char> BaseChar = {'A', 'B'};
+    vector<char> BaseChar = {'A', 'B','C'};
     int chips = 10;
     int vecsize = BaseChar.size();
     srand(time(0));
@@ -101,10 +102,9 @@ int main() {
         return -1;
     }
 
-    // Call the function once and display results
     SpinSlot(chips, RandomizedChar, BaseChar, vecsize, window, font);
 
-    // Main event loop
+   
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
