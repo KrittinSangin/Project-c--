@@ -42,7 +42,7 @@ int main() {
 
     bool isSpinning = false;
     Clock clock;
-    float spinDuration = 1.0f;
+    float spinDuration = 0.5f;
 
     while (window.isOpen()) {
         Event event;
