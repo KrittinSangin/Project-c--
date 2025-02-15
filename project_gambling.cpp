@@ -1,8 +1,6 @@
 #include <SFML/Graphics.hpp>
-#include <iostream> // For debugging
 #include <iostream>
 #include <vector>
-
 using namespace std;
 
 
@@ -10,7 +8,7 @@ void waitForMouseClick(sf::RenderWindow& window) {
     sf::Event event;
     while (window.waitEvent(event)) {
         if (event.type == sf::Event::MouseButtonPressed) {
-            return; // Exit when a mouse button is pressed
+            return; 
         }
     }
 }
@@ -88,6 +86,7 @@ int eventHandler(){
 }
 
 int main() {
+    //coin slot skills 
     vector<char> BaseChar = {'A', 'B','C'};
     int chips = 10;
     int vecsize = BaseChar.size();
@@ -116,6 +115,6 @@ int main() {
 
     return 0;
 }
-
+    
 
 
