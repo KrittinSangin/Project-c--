@@ -16,7 +16,7 @@ void showGameOverScreen(RenderWindow& window) {
 
     // โหลดพื้นหลัง
     Texture backgroundTexture;
-    if (!backgroundTexture.loadFromFile("background win.jpg")) { // เปลี่ยนชื่อไฟล์ตามที่คุณมี
+    if (!backgroundTexture.loadFromFile("background win.jpg")) {
         cerr << "Error: ไม่สามารถโหลดรูป 'background.jpg' ได้! กรุณาตรวจสอบไฟล์." << endl;
         system("pause");
         return;
