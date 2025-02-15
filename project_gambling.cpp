@@ -1,5 +1,4 @@
 #include <SFML/Graphics.hpp>
-#include <iostream> // For debugging
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -116,6 +115,6 @@ int main() {
 
     return 0;
 }
-
+    
 
 
