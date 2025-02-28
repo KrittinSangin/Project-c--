@@ -9,6 +9,277 @@
 #include<cmath>
 using namespace std;
 using namespace sf;
+//skill
+
+class Skill
+{
+public:
+    string name;
+
+    enum SkillType
+    {
+        HEALACTIVE,//active
+        ATTACK_BOOST,
+        STEAL_SKILL,
+        SHIELD,
+        CHIP_BOOST,//active
+        BUFF_X2,
+        DEFENSE_BOOST,//active
+        CRITICAL_ATTACK,//active
+        HEALPASSIVE
+    } type;
+
+    Skill(string n, SkillType t) : name(n), type(t) {}
+    void createskill(string s){
+        
+    }
+
+
+
+    void applySkill(class Player &p); // ฟังก์ชันที่จะทำงานกับ Player class
+};
+
+// Class สำหรับผู้เล่น
+class Player
+{
+public:
+    string name;
+    float attackPower;
+    float hp;
+    float hpMax;
+    float defense;
+    bool shieldActive;
+    int chip;                      // จำนวนเหรียญที่ผู้เล่นมี
+    int chipMax;                   // จำนวนเหรียญสูงสุดที่สามารถสะสมได้
+    bool buffed;                   // เช็คว่าอยู่ในสถานะบัฟหรือไม่
+    vector<Skill> availableSkills; // สกิลที่ผู้เล่นสามารถเลือกใช้
+    Skill *stolenSkill;            // สกิลที่ขโมยจากฝ่ายตรงข้าม
+    float criticalChance;          // โอกาสในการโจมตีแบบ Critical (20%)
+    bool isCritical;               // ฟีเจอร์เพื่อเก็บสถานะ Critical
+    void handleChipReduction();    // ฟังก์ชันจัดการการลด chip
+
+    Player(string n, float power) : name(n), attackPower(power), hp(100), hpMax(100), defense(10), shieldActive(false), chip(10), chipMax(100), buffed(false), stolenSkill(nullptr), criticalChance(0.2), isCritical(false) {}
+
+    void useSkill(Skill skill);
+    void stealSkill(Skill *opponentSkill);
+    void takeDamage(float damage);
+    void displayStatus();
+    void activateShield();    // ฟังก์ชันในการเปิดโล่
+    void addChip(int amount); // ฟังก์ชันเพิ่มเหรียญ
+    void resetBuff();         // ฟังก์ชันในการรีเซ็ตสถานะบัฟ
+    void checkCritical();     // ฟังก์ชันเช็คโอกาสการโจมตีแบบ Critical
+    void attack();            // ฟังก์ชันโจมตี
+};
+
+// ฟังก์ชันที่ทำงานกับแต่ละสกิล
+void Skill::applySkill(Player &p)
+{
+    switch (type)
+    {
+    case HEALACTIVE:
+        // ฟื้นฟู HP 20%
+        p.attackPower += (p.buffed ? p.hpMax * 0.4 : p.hpMax * 0.2); // ถ้าบัฟแล้วเพิ่มเป็น 2 เท่า
+        if (p.hp > p.hpMax)
+            p.hp = p.hpMax; // HP ไม่เกิน HPMax
+        cout << p.name << " used Heal. HP is now " << p.hp << endl;
+        break;
+
+    case ATTACK_BOOST:
+        // เพิ่มพลังโจมตี 2 เท่า
+        p.attackPower *= (p.buffed ? 2 : 1); // ถ้าบัฟแล้วเพิ่มเป็น 2 เท่า
+        cout << p.name << " used Attack Boost. Attack power is now " << p.attackPower << endl;
+        // ตรวจสอบโอกาส Critical เมื่อใช้ Attack Boost
+        p.checkCritical();
+        break;
+
+    case STEAL_SKILL:
+        if (p.stolenSkill)
+        {
+            cout << p.name << " used " << p.stolenSkill->name << " which was stolen!" << endl;
+            p.stolenSkill->applySkill(p);
+        }
+        else
+        {
+            cout << "No skill stolen!" << endl;
+        }
+        break;
+
+    case SHIELD:
+        // เปิดโล่
+        if (p.buffed)
+        {
+            // ถ้ามีบัฟจะสามารถใช้โล่ได้ 2 ครั้ง
+            cout << p.name << " used Shield twice due to Buff!" << endl;
+            p.activateShield();
+            p.activateShield();
+        }
+        else
+        {
+            p.activateShield();
+        }
+        break;
+
+    case CHIP_BOOST:
+        // เพิ่มเหรียญ 20% ของ chipMax
+        p.addChip(p.buffed ? p.chipMax * 0.4 : p.chipMax * 0.2);
+        cout << p.name << " used Chip Boost. Chip is now " << p.chip << endl;
+        break;
+
+    case BUFF_X2:
+        // ใช้ Buff x2 ซึ่งจะเพิ่มผลลัพธ์ของสกิลในครั้งถัดไป
+        p.buffed = true;
+        cout << p.name << " used Buff x2! Next skill will be doubled!" << endl;
+        break;
+
+    case DEFENSE_BOOST:
+        // เพิ่ม Defense 20
+        p.defense += 20;
+        cout << p.name << " used Defense Boost. Defense is now " << p.defense << endl;
+        break;
+
+    case CRITICAL_ATTACK:
+        p.checkCritical();
+        break;
+
+    case HEALPASSIVE:
+        // ฟื้นฟู HP 20%
+        /* 
+        p.attackPower += (p.buffed ? p.hpMax * 0.4 : p.hpMax * 0.2); // ถ้าบัฟแล้วเพิ่มเป็น 2 เท่า
+        if (p.hp > p.hpMax)
+            p.hp = p.hpMax; // HP ไม่เกิน HPMax
+        cout << p.name << " used Heal. HP is now " << p.hp << endl; 
+        */
+        break;
+    }
+}
+
+// ฟังก์ชันที่เช็คโอกาส Critical
+void Player::checkCritical()
+{
+    float randomValue = (rand() % 100) / 100.0; // สุ่มค่า 0.0 - 1.0
+    if (randomValue <= criticalChance)
+    {
+        isCritical = true;
+        cout << name << " will make a Critical Attack!" << endl;
+    }
+    else
+    {
+        isCritical = false;
+        cout << name << " made a normal attack." << endl;
+    }
+}
+
+// ฟังก์ชันในการโจมตี
+void Player::attack()
+{
+    float damage = attackPower; // ความเสียหายปกติ
+    if (isCritical)
+    {
+        damage *= 2; // เพิ่มความเสียหายเป็น 2 เท่าเมื่อ Critical
+        cout << name << " performed a Critical Attack! Damage is " << damage << endl;
+    }
+    else
+    {
+        cout << name << " performed a normal attack. Damage is " << damage << endl;
+    }
+}
+
+// ฟังก์ชันขโมยสกิลจากฝ่ายตรงข้าม
+void Player::stealSkill(Skill *opponentSkill)
+{
+    stolenSkill = opponentSkill; // เก็บสกิลที่ขโมยมาจากฝ่ายตรงข้าม
+    cout << name << " stole " << opponentSkill->name << " from the opponent!" << endl;
+}
+
+// ฟังก์ชันในการเปิดโล่
+void Player::activateShield()
+{
+    shieldActive = true;
+    cout << name << " activated the Shield! Next attack will be blocked." << endl;
+}
+
+// ฟังก์ชันในการรับความเสียหาย
+void Player::takeDamage(float damage)
+{
+    if (shieldActive)
+    {
+        // หากโล่ถูกเปิดใช้งานจะป้องกันการโจมตีทั้งหมด
+        cout << name << " is protected by the Shield! No damage taken." << endl;
+        shieldActive = false; // โล่จะหายไปหลังจากการโจมตีครั้งนี้
+    }
+    else
+    {
+        // ลดความเสียหายโดยการใช้ defense
+        float realDamage = damage - (defense * 0.1); // คำนวณ damage ที่แท้จริง
+        if (realDamage < 0)
+            realDamage = 0; // ถ้าค่าความเสียหายน้อยกว่า 0 ก็ไม่ให้เป็นลบ
+        hp -= realDamage;
+        if (hp < 0)
+            hp = 0;
+        cout << name << " took " << realDamage << " damage. HP is now " << hp << endl;
+    }
+}
+
+// ฟังก์ชันในการเพิ่มchip
+void Player::addChip(int amount)
+{
+    chip += amount;
+    if (chip > chipMax)
+        chip = chipMax; // ป้องกันไม่ให้chipเกิน chipMax
+}
+
+// ฟังก์ชันที่จัดการกับการลด chip และตรวจสอบโอกาส 30% สำหรับการเพิ่ม HP และ chip
+void Player::handleChipReduction()
+{
+    // ตรวจสอบโอกาส 30% ที่จะเกิดการเพิ่ม HP และ chip
+    float randomValue = (rand() % 100) / 100.0; // สุ่มค่าระหว่าง 0.0 ถึง 1.0
+    if (randomValue <= 0.3)
+    { // โอกาส 30%
+        // เพิ่ม HP 20% ของ HP Max
+        hp += hpMax * 0.25;
+        if (hp > hpMax)
+            hp = hpMax; // ให้ HP ไม่เกินค่าของ HP Max
+        cout << name << " gained 20% HP! HP is now " << hp << endl;
+
+        // เพิ่ม chip 20% ของ chip Max
+        chip += chipMax * 0.35;
+        if (chip > chipMax)
+            chip = chipMax; // ให้ chip ไม่เกินค่าของ chip Max
+        cout << name << " gained 20% Chip! Chip is now " << chip << endl;
+    }
+}
+
+// ฟังก์ชันในการแสดงสถานะของผู้เล่น
+void Player::displayStatus()
+{
+    cout << name << "'s attack power: " << attackPower << ", HP: " << hp << "/" << hpMax << ", Defense: " << defense
+         << ", Shield Active: " << (shieldActive ? "Yes" : "No") << ", Chip: " << chip << "/" << chipMax << ", Critical Chance: " << criticalChance * 100 << "%" << endl;
+}
+
+// ฟังก์ชันในการใช้สกิล
+void Player::useSkill(Skill skill)
+{
+    if (chip > 0)
+    {
+        skill.applySkill(*this); // ใช้สกิล
+        chip -= 1;               // ลด chip ลงทีละ 1 ทุกครั้งที่ใช้สกิล
+        cout << name << " used a skill. chip reduced to " << chip << endl;
+    }
+    else
+    {
+        cout << "Not enough chips to use a skill!" << endl;
+    }
+}
+
+// ฟังก์ชันรีเซ็ตสถานะบัฟ
+void Player::resetBuff()
+{
+    buffed = false;
+    cout << name << "'s Buff x2 effect has expired!" << endl;
+}
+
+
+
 //gam's
 class item {
     public:
@@ -50,7 +321,7 @@ class item {
         void removeItem(int index);// Function to mark an item as sold out
         void displayItems(sf::RenderWindow& window, sf::Font& font);// Display the names of the items
         void displayCosts(sf::RenderWindow& window, sf::Font& font);// แสดงราคาสินค้าและสถานะ
-        void handlePurchase(int ,coin&); // ฟังก์ชันที่จัดการการซื้อสินค้า
+        void handlePurchase(int ,coin&,Player&); // ฟังก์ชันที่จัดการการซื้อสินค้า
     };
     
     void store::addItem(const item& ITEM){
@@ -110,13 +381,31 @@ class item {
             }
     }
     
-    void store::handlePurchase(int itemIndex, coin& playerMoney) {
+    void store::handlePurchase(int itemIndex, coin& playerMoney, Player& player) {
         if (!forsale[itemIndex].soldOut && playerMoney.mycoin >= forsale[itemIndex].cost) {
-            // ถ้าสามารถซื้อได้และสินค้ายังไม่หมด
-            playerMoney.mycoin -= forsale[itemIndex].cost;  // ลดเงิน
-            forsale[itemIndex].soldOut = true;  // ทำให้สินค้าหมด
+            // Deduct money
+            playerMoney.mycoin -= forsale[itemIndex].cost;
+    
+            // Convert item name to a corresponding skill
+            Skill::SkillType skillType;
+            if (forsale[itemIndex].name == "HEALACTIVE") skillType = Skill::HEALACTIVE;
+            else if (forsale[itemIndex].name == "ATTACK_BOOST") skillType = Skill::ATTACK_BOOST;
+            else if (forsale[itemIndex].name == "STEAL_SKILL") skillType = Skill::STEAL_SKILL;
+            else if (forsale[itemIndex].name == "SHIELD") skillType = Skill::SHIELD;
+            else if (forsale[itemIndex].name == "CHIP_BOOST") skillType = Skill::CHIP_BOOST;
+            else if (forsale[itemIndex].name == "BUFF_X2") skillType = Skill::BUFF_X2;
+            else if (forsale[itemIndex].name == "DEFENSE_BOOST") skillType = Skill::DEFENSE_BOOST;
+            else if (forsale[itemIndex].name == "CRITICAL_ATTACK") skillType = Skill::CRITICAL_ATTACK;
+            else if (forsale[itemIndex].name == "HEALPASSIVE") skillType = Skill::HEALPASSIVE;
+            else return; // Invalid skill, return early
+    
+            // Add skill to player's available skills
+            player.availableSkills.push_back(Skill(forsale[itemIndex].name, skillType));
+    
+            // Mark item as sold out
+            forsale[itemIndex].soldOut = true;
             forsale[itemIndex].name = "SOLD OUT";
-        }    
+        }
     }
     
     //independence func
@@ -157,7 +446,7 @@ void waitForMouseClick(sf::RenderWindow& window, bool& isSpinning1, bool& isSpin
         if (event.type == sf::Event::MouseButtonPressed) {
             Vector2i mousePos = Mouse::getPosition(window);
             if (spinButton.getGlobalBounds().contains(mousePos.x, mousePos.y)) {
-                cerr << "Button Pressed" << endl;
+                //cerr << "Button Pressed" << endl;
                 isSpinning1 = isSpinning2 = isSpinning3 = true;
                 clock.restart();
                 return;
@@ -173,49 +462,60 @@ void OutputRandomizedChar(char* Array1, vector<char> v, int size) {
     }
 }
 bool virgin = true;
-Text checkCondition(char* CurrentArray, Font& font,int & chips,const int maxchips,Text &ChipsText,coin &money,Text &MoneyText) {
-    
+Text checkCondition(char* CurrentArray, Font& font, int& chips, const int maxchips, Text& ChipsText, coin& money, Text& MoneyText, Player& player) {
     Text Status;
     Status.setFont(font);
     Status.setCharacterSize(35);
     Status.setFillColor(Color::White);
     Status.setPosition(380, 200);
-   
-    
+
     if ((CurrentArray[0] == CurrentArray[1]) && (CurrentArray[1] == CurrentArray[2])) {
-        switch (CurrentArray[0])
-        {
-        case 'C':
-            Status.setString("Won " + to_string(maxchips*2/10) + " Chips");
-           chips = chips + (maxchips*3/10);
-           ChipsText.setString("Chips: " + to_string(chips));
-            break;
-        case 'M':
-             Status.setString("Won " + to_string(10) + " $");
-             //ChipsText.setString("Chips: " + to_string(chips));
-            money.addmoney(10);
-            break;
-        
-        case 'S':
-           //handle your skill slot right here
-           
-            break;
-        
-        default:
-        Status.setString("Won!");
-            break;
+        switch (CurrentArray[0]) {
+            case 'C':
+                Status.setString("Won " + to_string(maxchips * 2 / 10) + " Chips");
+                chips = chips + (maxchips * 3 / 10);
+                ChipsText.setString("Chips: " + to_string(chips));
+                break;
+
+            case 'M':
+                Status.setString("Won " + to_string(10) + " $");
+                money.addmoney(10);
+                break;
+
+            case 'S': {
+                // Define the pool of skills
+                vector<Skill> skillPool = {
+                    Skill("DEFENSE_BOOST", Skill::DEFENSE_BOOST),
+                    Skill("HEALACTIVE", Skill::HEALACTIVE),
+                    Skill("CRITICAL_ATTACK", Skill::CRITICAL_ATTACK),
+                    Skill("CHIP_BOOST", Skill::CHIP_BOOST)
+                };
+
+                // Select a random skill from the pool
+                int randomIndex = rand() % skillPool.size();
+                Skill randomSkill = skillPool[randomIndex];
+
+                // Add the skill to the player's available skills
+                player.availableSkills.push_back(randomSkill);
+
+                Status.setString("Won Skill: " + randomSkill.name);
+                break;
+            }
+
+            default:
+                Status.setString("Won!");
+                break;
         }
-    } else if(!virgin){
+    } else if (!virgin) {
         Status.setString("Lost!");
-    } else{
+    } else {
         Status.setString("Press to Spin!");
         virgin = false;
     }
     return Status;
-    
 }
 
-void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsize, sf::RenderWindow& window, sf::Font& font, int maxchips,bool & FinishedPhase,coin &money) {
+void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsize, sf::RenderWindow& window, sf::Font& font, int maxchips,bool & FinishedPhase,coin &money,Player &player) {
     bool isSpinning1 = false, isSpinning2 = false, isSpinning3 = false;
     Clock clock;
     float spinDuration = 0.85;
@@ -252,7 +552,7 @@ void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsiz
 
     RectangleShape spinButton = DrawSpinButton();
 
-    while (chips >= 3) {
+    while (chips >= 1) {
         OutputRandomizedChar(RandomizedChar, BaseChar, vecsize);
         clock.restart();
 
@@ -291,7 +591,7 @@ void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsiz
 
         clock.restart();
         ChipsText.setString("Chips: " + to_string(chips));
-        Status = checkCondition(RandomizedChar, font,chips,maxchips,ChipsText,money,MoneyText);
+        Status = checkCondition(RandomizedChar, font,chips,maxchips,ChipsText,money,MoneyText,player);
 
         window.clear();
         window.draw(Slot1);
@@ -311,6 +611,15 @@ void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsiz
 
 
 int main() {
+
+
+
+
+
+    Player player("Player1",10);//PASTEURSHIT
+
+
+
     enum GameState { SLOT_MACHINE, STORE, NEXT_STAGE };
 GameState gameState = SLOT_MACHINE;
 
@@ -365,19 +674,36 @@ GameState gameState = SLOT_MACHINE;
     exitText.setPosition(744, 17); // ตำแหน่งของข้อความในปุ่ม
 
     // Create items
-    item ITEMA = {"HEAL", 10, false};
+    item ITEMA = {"HEALACTIVE", 10, false};//
     item ITEMB = {"ATTACK_BOOST", 20, false};
     item ITEMC = {"STEAL_SKILL", 30, false};
     item ITEMD = {"SHIELD", 40, false};
-    item ITEME = {"CHIP_BOOST", 50, false};
-
+    item ITEME = {"CHIP_BOOST", 50, false};//
+    item ITEMF = {"BUFF_X2", 50, false};
+    item ITEMG = {"DEFENSE_BOOST", 50, false};//
+    item ITEMH = {"CRITICAL_ATTACK", 50, false};//
+    item ITEMI = {"HEALPASSIVE", 50, false};
+    
+/*      HEALACTIVE,active
+        ATTACK_BOOST,
+        STEAL_SKILL,
+        SHIELD,
+        CHIP_BOOST,//active
+        BUFF_X2,
+        DEFENSE_BOOST,//active
+        CRITICAL_ATTACK//active
+        */
     // Add items to store
-    game.addItem(ITEMA);
+    //game.addItem(ITEMA);
     game.addItem(ITEMB);
     game.addItem(ITEMC);
     game.addItem(ITEMD);
-    game.addItem(ITEME);
-
+    //game.addItem(ITEME);
+    game.addItem(ITEMF);
+    //game.addItem(ITEMG);
+    //game.addItem(ITEMH);
+    game.addItem(ITEMI);
+    
     // Randomize items for sale
     game.randomForSale();
 
@@ -395,7 +721,7 @@ GameState gameState = SLOT_MACHINE;
     int currentScreen = 0;
     bool FinishedPhase = false;
     vector<char> BaseChar = {'M','C','S'};
-    //vector<char> BaseChar = {'M'};
+   // vector<char> BaseChar = {'S'};
     int maxchips = 10;
     int chips = maxchips;
     int vecsize = BaseChar.size();
@@ -463,7 +789,7 @@ GameState gameState = SLOT_MACHINE;
                     cerr << "Left click Start" << endl;
                     background = Sprite(); // Remove background
                     startButton = Sprite(); // Remove start button
-                    SpinSlot(chips, RandomizedChar, BaseChar, vecsize, window, font, maxchips, FinishedPhase, money);
+                    SpinSlot(chips, RandomizedChar, BaseChar, vecsize, window, font, maxchips, FinishedPhase, money,player);
                     MainmenuLoop = false;
                     gameState = STORE;
                     FinishedPhase = true; // Move to store phase
@@ -505,6 +831,7 @@ GameState gameState = SLOT_MACHINE;
                     // Handle reroll button
                     if (RandomButtonClicked(randombutton, event)) {
                         if (money.mycoin >= 100) {
+                           
                             money.mycoin -= 100;
                             game.reroll();  // Re-roll store items
                             alertText.setString("");
@@ -520,7 +847,18 @@ GameState gameState = SLOT_MACHINE;
                         if (isCostClicked(i, event, game)) {
                             if (game.forsale[i].name != "SOLD OUT") {
                                 if (money.mycoin >= game.forsale[i].cost) {
-                                    money.mycoin -= game.forsale[i].cost;
+                                    //money.mycoin -= game.forsale[i].cost;
+
+                                    game.handlePurchase(i, money, player);//add player skill from shop
+                                    for (int i = 0; i < player.availableSkills.size(); i++)
+                                    {
+                                        cerr << player.availableSkills[i].name << endl;
+                                    }
+                                    for (int i = 0; i < 9; i++)
+                                    {
+                                        cerr << endl;
+                                    }
+                                    
                                     game.removeItem(i);
                                     alertText.setString("");
                                     showAlert = false;
