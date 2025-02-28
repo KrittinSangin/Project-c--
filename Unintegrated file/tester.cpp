@@ -79,9 +79,9 @@ class item {
     void store::displayItems(sf::RenderWindow& window, sf::Font& font) {
         for (int i = 0; i < 3; i++) {
             if (forsale[i].name != "SOLD OUT") {  // Display name if not sold out
-                sf::Text itemText(forsale[i].name, font, 100);
+                sf::Text itemText(forsale[i].name, font, 20);
                 itemText.setFillColor(sf::Color::White);
-                itemText.setPosition(160 + i * 205, 150);
+                itemText.setPosition(160 + i * 205, 270);
                 window.draw(itemText);
             } else {
                 // Display SOLD OUT if the item is sold
@@ -172,16 +172,17 @@ void OutputRandomizedChar(char* Array1, vector<char> v, int size) {
         Array1[i] = v[randint];
     }
 }
-
+bool virgin = true;
 Text checkCondition(char* CurrentArray, Font& font,int & chips,const int maxchips,Text &ChipsText,coin &money,Text &MoneyText) {
+    
     Text Status;
     Status.setFont(font);
     Status.setCharacterSize(35);
     Status.setFillColor(Color::White);
     Status.setPosition(380, 200);
-
+   
+    
     if ((CurrentArray[0] == CurrentArray[1]) && (CurrentArray[1] == CurrentArray[2])) {
-        
         switch (CurrentArray[0])
         {
         case 'C':
@@ -204,10 +205,14 @@ Text checkCondition(char* CurrentArray, Font& font,int & chips,const int maxchip
         Status.setString("Won!");
             break;
         }
-    } else {
+    } else if(!virgin){
         Status.setString("Lost!");
+    } else{
+        Status.setString("Press to Spin!");
+        virgin = false;
     }
     return Status;
+    
 }
 
 void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsize, sf::RenderWindow& window, sf::Font& font, int maxchips,bool & FinishedPhase,coin &money) {
@@ -247,7 +252,7 @@ void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsiz
 
     RectangleShape spinButton = DrawSpinButton();
 
-    while (chips >= 1) {
+    while (chips >= 3) {
         OutputRandomizedChar(RandomizedChar, BaseChar, vecsize);
         clock.restart();
 
@@ -360,11 +365,11 @@ GameState gameState = SLOT_MACHINE;
     exitText.setPosition(744, 17); // ตำแหน่งของข้อความในปุ่ม
 
     // Create items
-    item ITEMA = {"A", 10, false};
-    item ITEMB = {"B", 20, false};
-    item ITEMC = {"C", 30, false};
-    item ITEMD = {"D", 40, false};
-    item ITEME = {"E", 50, false};
+    item ITEMA = {"HEAL", 10, false};
+    item ITEMB = {"ATTACK_BOOST", 20, false};
+    item ITEMC = {"STEAL_SKILL", 30, false};
+    item ITEMD = {"SHIELD", 40, false};
+    item ITEME = {"CHIP_BOOST", 50, false};
 
     // Add items to store
     game.addItem(ITEMA);
