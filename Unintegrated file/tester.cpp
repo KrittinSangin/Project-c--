@@ -523,7 +523,7 @@ void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsiz
     Text Slot1, Slot2, Slot3, Status, ChipsText,MoneyText;
     Slot1.setFont(font);
     Slot1.setCharacterSize(35);
-    Slot1.setFillColor(Color::Yellow);
+    Slot1.setFillColor(Color::Black);
     Slot1.setPosition(450, 250);
 
     Slot2 = Slot1;
@@ -548,19 +548,28 @@ void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsiz
     MoneyText.setFillColor(Color::White);
     MoneyText.setPosition(400, 300);
     
+    Texture StoreBackgroundTexture;
+    if (!StoreBackgroundTexture.loadFromFile("Store.JPG")) {
+        cerr << "Failed to load SlotBackground image!" << endl;
+    }
+    Sprite StoreBackground(StoreBackgroundTexture);
+    StoreBackground.setPosition(100,100);
+
+
+
 
 
     RectangleShape spinButton = DrawSpinButton();
 
-    while (chips >= 1) {
+    while (chips >= 9) {
         OutputRandomizedChar(RandomizedChar, BaseChar, vecsize);
         clock.restart();
 
         while (isSpinning1 || isSpinning2 || isSpinning3) {
             float elapsed = clock.getElapsedTime().asSeconds();
             window.clear();
-
-            if (isSpinning1) {
+            window.draw(StoreBackground);
+            if (isSpinning1) {//SAVESPOT
                 Slot1.setString(string(1, BaseChar[rand() % vecsize]));
             }
             if (isSpinning2) {
@@ -582,10 +591,11 @@ void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsiz
                 Slot3.setString(string(1, RandomizedChar[2]));
                 isSpinning3 = false;
             }
-            
+            window.draw(StoreBackground);
             window.draw(Slot1);
             window.draw(Slot2);
             window.draw(Slot3);
+            
             window.display();
         }
 
@@ -594,6 +604,7 @@ void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsiz
         Status = checkCondition(RandomizedChar, font,chips,maxchips,ChipsText,money,MoneyText,player);
 
         window.clear();
+        window.draw(StoreBackground);
         window.draw(Slot1);
         window.draw(Slot2);
         window.draw(Slot3);
@@ -755,6 +766,16 @@ GameState gameState = SLOT_MACHINE;
     float buttonCenterY = window.getSize().y / 2;
     startButton.setPosition(buttonCenterX - startButton.getLocalBounds().width + 250, buttonCenterY - startButton.getLocalBounds().height + 300);
     startButton.setOrigin(startButton.getLocalBounds().width / 2, startButton.getLocalBounds().height / 2);
+    
+    
+    Texture SlotBackgroundTexture;
+    if (!SlotBackgroundTexture.loadFromFile("Spin.JPG")) {
+        cerr << "Failed to load SlotBackground image!" << endl;
+        return -1;
+    }
+    Sprite SlotBackground(SlotBackgroundTexture);
+    SlotBackground.setPosition(100,100);
+    
 
     Vector2f originalScale(1.f, 1.f);
     Vector2f hoverScale(1.2f, 1.2f);
@@ -776,6 +797,11 @@ GameState gameState = SLOT_MACHINE;
         window.clear();
     
         if (gameState == SLOT_MACHINE) {
+
+
+
+    
+
             // ---------- SLOT MACHINE PHASE ----------
             sf::Vector2i mousePos = sf::Mouse::getPosition(window);
             if (startButton.getGlobalBounds().contains(static_cast<sf::Vector2f>(mousePos))) {
@@ -789,6 +815,7 @@ GameState gameState = SLOT_MACHINE;
                     cerr << "Left click Start" << endl;
                     background = Sprite(); // Remove background
                     startButton = Sprite(); // Remove start button
+                    
                     SpinSlot(chips, RandomizedChar, BaseChar, vecsize, window, font, maxchips, FinishedPhase, money,player);
                     MainmenuLoop = false;
                     gameState = STORE;
@@ -808,6 +835,7 @@ GameState gameState = SLOT_MACHINE;
 
 
             // Draw store UI elements
+            window.draw(SlotBackground);
             window.draw(randombutton);
             window.draw(randombuttonText);
             window.draw(storeText);
