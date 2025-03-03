@@ -456,7 +456,7 @@ void store::displayItems(sf::RenderWindow &window, sf::Font &font)
     {
         if (forsale[i].name != "SOLD OUT")
         { // Display name if not sold out
-            sf::Text itemText(forsale[i].name, font, 20);
+            sf::Text itemText(forsale[i].name, font, 15);
             itemText.setFillColor(sf::Color::White);
             itemText.setPosition(160 + i * 160, 230);
             window.draw(itemText);
@@ -488,7 +488,7 @@ void store::displayCosts(sf::RenderWindow &window, sf::Font &font)
             // แสดงราคาสินค้า
             sf::Text costText(std::to_string(forsale[i].cost), font, 45);
             costText.setFillColor(sf::Color::Yellow); // HAMLUEM
-            costText.setPosition(172 + i * 188, 287);
+            costText.setPosition(172 + i * 184, 287);
             window.draw(costText);
         }
     }
@@ -503,24 +503,24 @@ void store::handlePurchase(int itemIndex, coin &playerMoney, Player &player)
 
         // Convert item name to a corresponding skill
         Skill::SkillType skillType;
-        if (forsale[itemIndex].name == "HEALACTIVE")
-            skillType = Skill::HEALACTIVE;
+        if (forsale[itemIndex].name == "HEALPASSIVE")
+            skillType = Skill::HEALPASSIVE;
         else if (forsale[itemIndex].name == "ATTACK_BOOST")
             skillType = Skill::ATTACK_BOOST;
-        else if (forsale[itemIndex].name == "STEAL_SKILL")
-            skillType = Skill::STEAL_SKILL;
-        else if (forsale[itemIndex].name == "SHIELD")
-            skillType = Skill::SHIELD;
+        // else if (forsale[itemIndex].name == "STEAL_SKILL")
+        //     skillType = Skill::STEAL_SKILL;
+        // else if (forsale[itemIndex].name == "SHIELD")
+        //     skillType = Skill::SHIELD;
         else if (forsale[itemIndex].name == "CHIP_BOOST")
             skillType = Skill::CHIP_BOOST;
-        else if (forsale[itemIndex].name == "BUFF_X2")
-            skillType = Skill::BUFF_X2;
+        // else if (forsale[itemIndex].name == "BUFF_X2")
+        //     skillType = Skill::BUFF_X2;
         else if (forsale[itemIndex].name == "DEFENSE_BOOST")
             skillType = Skill::DEFENSE_BOOST;
-        else if (forsale[itemIndex].name == "CRITICAL_ATTACK")
-            skillType = Skill::CRITICAL_ATTACK;
-        else if (forsale[itemIndex].name == "HEALPASSIVE")
-            skillType = Skill::HEALPASSIVE;
+        // else if (forsale[itemIndex].name == "CRITICAL_ATTACK")
+        //     skillType = Skill::CRITICAL_ATTACK;
+        // else if (forsale[itemIndex].name == "HEALPASSIVE")
+        //     skillType = Skill::HEALPASSIVE;
         else
             return; // Invalid skill, return early
 
@@ -620,10 +620,11 @@ Text checkCondition(char *CurrentArray, Font &font, int &chips, const int maxchi
         {
             // Define the pool of skills
             vector<Skill> skillPool = {
-                Skill("DEFENSE_BOOST", Skill::DEFENSE_BOOST),
-                Skill("HEALACTIVE", Skill::HEALACTIVE),
-                Skill("CRITICAL_ATTACK", Skill::CRITICAL_ATTACK),
-                Skill("CHIP_BOOST", Skill::CHIP_BOOST)};
+                Skill("STEAL_SKILL", Skill::STEAL_SKILL),
+                Skill("SHIELD", Skill::SHIELD),
+                Skill("BUFF_X2", Skill::BUFF_X2),
+                Skill("ATTACK_BOOST", Skill::ATTACK_BOOST),
+                Skill("HEALACTIVE", Skill::HEALACTIVE)};
 
             // Select a random skill from the pool
             int randomIndex = rand() % skillPool.size();
@@ -849,13 +850,13 @@ int main()
             */
     // Add items to store
     // game.addItem(ITEMA);
-    game.addItem(ITEMB);
-    game.addItem(ITEMC);
-    game.addItem(ITEMD);
-    // game.addItem(ITEME);
-    game.addItem(ITEMF);
-    // game.addItem(ITEMG);
-    // game.addItem(ITEMH);
+    // game.addItem(ITEMB);
+    // game.addItem(ITEMC);
+    // game.addItem(ITEMD);
+    game.addItem(ITEME);
+    // game.addItem(ITEMF);
+    game.addItem(ITEMG);
+    game.addItem(ITEMH);
     game.addItem(ITEMI);
 
     // Randomize items for sale
