@@ -8,77 +8,94 @@
 using namespace std;
 using namespace sf;
 
-class item {
+class item
+{
 public:
     std::string name;
     int cost;
     bool soldOut;
 };
 
-class coin {
-    public:
-        int mycoin;
-        coin(int getcoin) {
-            mycoin = getcoin;
-        }
-        coin(const coin& copy) {
-            mycoin = copy.mycoin;
-        }
-        coin& operator=(const coin& other) {
-            if (this != &other) {
-                mycoin = other.mycoin;
-            }
-            return *this;
-        }
-    };
-    
-
-class store {
-private:
-    std::vector<item> stock;
+class coin
+{
 public:
-    bool hideAlert = false;
-    item forsale[3];  // Array to store the items that are for sale
-    void addItem(const item& ITEM); // Add an item to the stock
-    void randomForSale();// Function to randomize which 3 items are for sale 
-    void reroll();// Function to re-roll the items for sale
-    void removeItem(int index);// Function to mark an item as sold out
-    void displayItems(sf::RenderWindow& window, sf::Font& font);// Display the names of the items
-    void displayCosts(sf::RenderWindow& window, sf::Font& font);// แสดงราคาสินค้าและสถานะ
-    void handlePurchase(int ,coin&); // ฟังก์ชันที่จัดการการซื้อสินค้า
+    int mycoin;
+    coin(int getcoin)
+    {
+        mycoin = getcoin;
+    }
+    coin(const coin &copy)
+    {
+        mycoin = copy.mycoin;
+    }
+    coin &operator=(const coin &other)
+    {
+        if (this != &other)
+        {
+            mycoin = other.mycoin;
+        }
+        return *this;
+    }
 };
 
-void store::addItem(const item& ITEM){
+class store
+{
+private:
+    std::vector<item> stock;
+
+public:
+    bool hideAlert = false;
+    item forsale[3];                                             // Array to store the items that are for sale
+    void addItem(const item &ITEM);                              // Add an item to the stock
+    void randomForSale();                                        // Function to randomize which 3 items are for sale
+    void reroll();                                               // Function to re-roll the items for sale
+    void removeItem(int index);                                  // Function to mark an item as sold out
+    void displayItems(sf::RenderWindow &window, sf::Font &font); // Display the names of the items
+    void displayCosts(sf::RenderWindow &window, sf::Font &font); // แสดงราคาสินค้าและสถานะ
+    void handlePurchase(int, coin &);                            // ฟังก์ชันที่จัดการการซื้อสินค้า
+};
+
+void store::addItem(const item &ITEM)
+{
     stock.push_back(ITEM);
 }
 
-void store::randomForSale(){
+void store::randomForSale()
+{
     std::vector<item> stockClone = stock; // Clone the stock to shuffle
     int random;
-    for (int i = 0; i < 3; i++) {
-        random = rand() % stockClone.size();  // Get a random item
-        forsale[i] = stockClone[random];  // Assign it to forsale
-        stockClone.erase(stockClone.begin() + random);  // Remove item from stockClone
+    for (int i = 0; i < 3; i++)
+    {
+        random = rand() % stockClone.size();           // Get a random item
+        forsale[i] = stockClone[random];               // Assign it to forsale
+        stockClone.erase(stockClone.begin() + random); // Remove item from stockClone
     }
 }
 
-void store::reroll() {
-    randomForSale();  // Just call randomForSale again
+void store::reroll()
+{
+    randomForSale(); // Just call randomForSale again
 }
 
-void store::removeItem(int index) {
-    forsale[index].soldOut = true;  // Mark the item as sold out
-    forsale[index].name = "SOLD OUT";  // Change name to "SOLD OUT"
+void store::removeItem(int index)
+{
+    forsale[index].soldOut = true;    // Mark the item as sold out
+    forsale[index].name = "SOLD OUT"; // Change name to "SOLD OUT"
 }
 
-void store::displayItems(sf::RenderWindow& window, sf::Font& font) {
-    for (int i = 0; i < 3; i++) {
-        if (forsale[i].name != "SOLD OUT") {  // Display name if not sold out
+void store::displayItems(sf::RenderWindow &window, sf::Font &font)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (forsale[i].name != "SOLD OUT")
+        { // Display name if not sold out
             sf::Text itemText(forsale[i].name, font, 100);
             itemText.setFillColor(sf::Color::White);
             itemText.setPosition(160 + i * 205, 150);
             window.draw(itemText);
-        } else {
+        }
+        else
+        {
             // Display SOLD OUT if the item is sold
             sf::Text soldOutText("", font, 100);
             soldOutText.setFillColor(sf::Color::Red);
@@ -88,43 +105,53 @@ void store::displayItems(sf::RenderWindow& window, sf::Font& font) {
     }
 }
 
-void store::displayCosts(sf::RenderWindow& window, sf::Font& font) {
-    for (int i = 0; i < 3; i++) {
-            if (forsale[i].soldOut) {
-                sf::Text soldOutPriceText("SOLD OUT", font, 30);
-                soldOutPriceText.setFillColor(sf::Color::Red);  // สีแดงสำหรับสินค้าที่หมด
-                soldOutPriceText.setPosition(140 + i * 200, 310);
-                window.draw(soldOutPriceText);
-            } else {
-                // แสดงราคาสินค้า
-                sf::Text costText(std::to_string(forsale[i].cost), font, 45);
-                costText.setFillColor(sf::Color::Yellow);
-                costText.setPosition(155 + i * 215, 300);
-                window.draw(costText);
-            }
+void store::displayCosts(sf::RenderWindow &window, sf::Font &font)
+{
+    for (int i = 0; i < 3; i++)
+    {
+        if (forsale[i].soldOut)
+        {
+            sf::Text soldOutPriceText("SOLD OUT", font, 30);
+            soldOutPriceText.setFillColor(sf::Color::Red); // สีแดงสำหรับสินค้าที่หมด
+            soldOutPriceText.setPosition(140 + i * 200, 310);
+            window.draw(soldOutPriceText);
         }
+        else
+        {
+            // แสดงราคาสินค้า
+            sf::Text costText(std::to_string(forsale[i].cost), font, 45);
+            costText.setFillColor(sf::Color::Yellow);
+            costText.setPosition(155 + i * 215, 300);
+            window.draw(costText);
+        }
+    }
 }
 
-void store::handlePurchase(int itemIndex, coin& playerMoney) {
-    if (!forsale[itemIndex].soldOut && playerMoney.mycoin >= forsale[itemIndex].cost) {
+void store::handlePurchase(int itemIndex, coin &playerMoney)
+{
+    if (!forsale[itemIndex].soldOut && playerMoney.mycoin >= forsale[itemIndex].cost)
+    {
         // ถ้าสามารถซื้อได้และสินค้ายังไม่หมด
-        playerMoney.mycoin -= forsale[itemIndex].cost;  // ลดเงิน
-        forsale[itemIndex].soldOut = true;  // ทำให้สินค้าหมด
+        playerMoney.mycoin -= forsale[itemIndex].cost; // ลดเงิน
+        forsale[itemIndex].soldOut = true;             // ทำให้สินค้าหมด
         forsale[itemIndex].name = "SOLD OUT";
-    }    
+    }
 }
 
-//independence func
-// Check if a button was clicked
-bool RandomButtonClicked(const sf::RectangleShape& button, const sf::Event& event) {
+// independence func
+//  Check if a button was clicked
+bool RandomButtonClicked(const sf::RectangleShape &button, const sf::Event &event)
+{
     return button.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y);
 }
 
 // Check if a price has been clicked
-bool isCostClicked(int index, const sf::Event& event, store& STORE) {
+bool isCostClicked(int index, const sf::Event &event, store &STORE)
+{
     // ตรวจสอบว่า item ไม่ได้เป็น SOLD OUT ก่อน
-    if (STORE.forsale[index].soldOut) {  // Check if item is sold out
-        return false;  // If the item is sold out, don't allow click
+    if (STORE.forsale[index].soldOut)
+    {                 // Check if item is sold out
+        return false; // If the item is sold out, don't allow click
     }
     float x = 155 + index * 210;
     float y = 300;
@@ -133,8 +160,9 @@ bool isCostClicked(int index, const sf::Event& event, store& STORE) {
     return sf::FloatRect(x, y, width, height).contains(event.mouseButton.x, event.mouseButton.y);
 }
 
-int main() {
-    srand(time(0));  // Seed the random number generator
+int main()
+{
+    srand(time(0)); // Seed the random number generator
 
     coin money(150);
     coin copymoney = money;
@@ -144,7 +172,8 @@ int main() {
 
     // Load font
     sf::Font font;
-    if (!font.loadFromFile("verdana.ttf")) {
+    if (!font.loadFromFile("verdana.ttf"))
+    {
         std::cout << "Error loading font!" << std::endl;
         return -1;
     }
@@ -186,7 +215,7 @@ int main() {
     exitButton.setFillColor(Color::Red);
     exitButton.setPosition(740, 20);
 
-    //create exittexts
+    // create exittexts
     Text exitText("X", font, 30);
     exitText.setFillColor(Color::White);
     exitText.setPosition(744, 17); // ตำแหน่งของข้อความในปุ่ม
@@ -222,73 +251,91 @@ int main() {
     int currentScreen = 0;
 
     // Main game loop
-    while (window.isOpen()) {
+    while (window.isOpen())
+    {
         sf::Event event;
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+            {
                 window.close();
             }
 
-            if (event.type == sf::Event::MouseButtonPressed) {
-                if (event.mouseButton.button == sf::Mouse::Left) {
+            if (event.type == sf::Event::MouseButtonPressed)
+            {
+                if (event.mouseButton.button == sf::Mouse::Left)
+                {
                     // Check if button was clicked
 
-                    if (RandomButtonClicked(randombutton, event)) {
-                        if (copymoney.mycoin >= 100) {
+                    if (RandomButtonClicked(randombutton, event))
+                    {
+                        if (copymoney.mycoin >= 100)
+                        {
                             copymoney.mycoin -= 100;
-                            game.reroll();  // Re-roll the items for sale
+                            game.reroll(); // Re-roll the items for sale
                             alertText.setString("");
                             showAlert = false;
-                            clock.restart();  
-                        } else {
+                            clock.restart();
+                        }
+                        else
+                        {
                             alertText.setString("Not enough money!");
                             showAlert = true;
-                            clock.restart();  
+                            clock.restart();
                         }
                     }
 
                     // Check if a price was clicked
-                    for (int i = 0; i < 3; i++) {
-                        if (isCostClicked(i, event, game)) {
-                            if (game.forsale[i].name != "SOLD OUT") {
-                                if (copymoney.mycoin >= game.forsale[i].cost) {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        if (isCostClicked(i, event, game))
+                        {
+                            if (game.forsale[i].name != "SOLD OUT")
+                            {
+                                if (copymoney.mycoin >= game.forsale[i].cost)
+                                {
                                     copymoney.mycoin -= game.forsale[i].cost;
-                                    game.removeItem(i);  // Mark item as sold
+                                    game.removeItem(i); // Mark item as sold
                                     alertText.setString("");
                                     showAlert = false;
-                                    clock.restart();  
-                                } else {
+                                    clock.restart();
+                                }
+                                else
+                                {
                                     alertText.setString("Not enough money!");
                                     showAlert = true;
-                                    clock.restart();  
+                                    clock.restart();
                                 }
                             }
                         }
                     }
 
-                    //check if exit button was clicked
-                    if (exitButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y)) {
+                    // check if exit button was clicked
+                    if (exitButton.getGlobalBounds().contains(event.mouseButton.x, event.mouseButton.y))
+                    {
                         // เปลี่ยนไปยังหน้าอื่น (เปลี่ยนสีหน้าจอและข้อความ)
-                        currentScreen = 1; 
+                        currentScreen = 1;
                     }
                 }
             }
         }
 
-        if(currentScreen == 0){
+        if (currentScreen == 0)
+        {
             // Check if alert should be shown
-        if (showAlert && clock.getElapsedTime().asSeconds() > alertDuration) {
-            alertText.setString("");  // Hide alert after 1 second
-            showAlert = false;
-        }
-    
+            if (showAlert && clock.getElapsedTime().asSeconds() > alertDuration)
+            {
+                alertText.setString(""); // Hide alert after 1 second
+                showAlert = false;
+            }
+
             // Update money display
             std::stringstream ss;
             ss << "Money: " << copymoney.mycoin;
             coinText.setString(ss.str());
-    
-            window.clear(); //หลังจากนี้จะเป็นวาดกราฟฟิค default window.clear(sf::Color::Black)
-    
+
+            window.clear(); // หลังจากนี้จะเป็นวาดกราฟฟิค default window.clear(sf::Color::Black)
+
             // Draw buttons and texts
             window.draw(randombutton);
             window.draw(randombuttonText);
@@ -296,17 +343,20 @@ int main() {
             window.draw(showmoney);
             window.draw(costrandombuttonText);
             window.draw(coinText);
-    
+
             // Draw items and prices
             game.displayItems(window, font);
             game.displayCosts(window, font);
-    
+
             // Draw alert text if necessary
-            if (showAlert) {
-            window.draw(alertText);
+            if (showAlert)
+            {
+                window.draw(alertText);
             }
-        }else{
-            window.clear(Color::White);  // สีฟ้า
+        }
+        else
+        {
+            window.clear(Color::White); // สีฟ้า
         }
         window.draw(exitButton);
         window.draw(exitText);
