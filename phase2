@@ -544,7 +544,8 @@ int main() {
         // Check boss phase transition
         // ���ǹ�������¹�ʺ��
         if (!phaseTransition) {
-            if (bossHPBar.getHP() <= 70 && bossPhase == 1) {
+            if (bossHPBar.getHP() <= 0 && bossPhase == 1) {
+                bossHPBar.setHP(bossHPBar.getHP() + 100);
                 bossPhase = 2;
                 phaseTransition = true;
                 phaseText.setString("Boss Phase 2");
@@ -556,7 +557,8 @@ int main() {
                 idle2.setPosition(400, 180); // ���˹����ǡѺ��ʵ���á
                 attack2.setPosition(0, 0);
             }
-            else if (bossHPBar.getHP() <= 40 && bossPhase == 2) {
+            else if (bossHPBar.getHP() <= 0 && bossPhase == 2) {
+                bossHPBar.setHP(bossHPBar.getHP() + 100);
                 bossPhase = 3;
                 phaseTransition = true;
                 phaseText.setString("Boss Final Phase");
