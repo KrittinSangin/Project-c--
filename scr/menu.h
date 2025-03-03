@@ -1,4 +1,5 @@
-#pragma once#include <SFML/Graphics.hpp>
+#pragma once
+#include <SFML/Graphics.hpp>
 #include <iostream>
 
 #define MAX_MENU_ITEMS 3
@@ -15,11 +16,12 @@ private:
 
 public:
     Menu(float width, float height) {
-        // โหลดฟอนต์และพื้นหลัง (เหมือนเดิม)
+        // Load font (Verdana)
         if (!font.loadFromFile("verdana.ttf")) {
             std::cerr << "Failed to load font!" << std::endl;
         }
 
+        // Load background image
         if (!backgroundTexture.loadFromFile("test.png")) {
             std::cerr << "Failed to load background image!" << std::endl;
         }
@@ -27,14 +29,14 @@ public:
         backgroundSprite.setScale(width / backgroundSprite.getLocalBounds().width,
             height / backgroundSprite.getLocalBounds().height);
 
-        // โหลดภาพปุ่มเมนู
+        // Load menu item images
         std::string menuFiles[MAX_MENU_ITEMS] = { "Continue-removebg-preview.png", "Restart-removebg-preview.png", "Exit-Photoroom.png" };
 
-        // กำหนดพิกัด (x, y) สำหรับแต่ละปุ่มภาพ
+        // Set positions for menu items (x, y)
         sf::Vector2f positions[MAX_MENU_ITEMS] = {
-            sf::Vector2f(-30, 200),  // ปุ่ม Play ที่ตำแหน่ง (250, 200)
-            sf::Vector2f(250, 200),  // ปุ่ม Options ที่ตำแหน่ง (250, 300)
-            sf::Vector2f(500, 200)   // ปุ่ม Exit ที่ตำแหน่ง (300, 400)
+            sf::Vector2f(-30, 200),  // Position for Play (250, 200)
+            sf::Vector2f(250, 200),  // Position for Options (250, 300)
+            sf::Vector2f(500, 200)   // Position for Exit (300, 400)
         };
 
         for (int i = 0; i < MAX_MENU_ITEMS; i++) {
@@ -43,18 +45,19 @@ public:
             }
             menuSprites[i].setTexture(menuTextures[i]);
 
-            // ปรับขนาดปุ่มภาพให้ใหญ่ขึ้น
+            // Scale menu items to fit within the desired size
             menuSprites[i].setScale(400 / menuSprites[i].getLocalBounds().width,
                 250 / menuSprites[i].getLocalBounds().height);
 
-            // ตั้งค่าตำแหน่งปุ่มภาพด้วยพิกัด (x, y)
+            // Set the position of each menu item based on the positions array (x, y)
             menuSprites[i].setPosition(positions[i]);
         }
 
-        // ตั้งค่าปุ่มที่ถูกเลือก (เหมือนเดิม)
+        // Initialize the selected item index (default is 0)
         selectedItemIndex = 0;
         menuSprites[selectedItemIndex].setColor(sf::Color(255, 100, 100));
 
+        // Set up the text to display the selected item
         selectedItemText.setFont(font);
         selectedItemText.setFillColor(sf::Color::Yellow);
         selectedItemText.setCharacterSize(24);
