@@ -327,6 +327,37 @@ int main() {
     // เก็บรูปสกิลที่เลือกไว้บนหัวสล็อต
     std::vector<sf::Sprite> slotSkillSprites(3); // สกิลที่เลือกไว้สำหรับช่อง 1, 2, 3
 
+    // เก็บรูปสกิลของบอส
+    std::vector<sf::Sprite> bossSkillSprites(3); // สกิลของบอสสำหรับช่อง 1, 2, 3
+
+    // โหลดรูปสกิลของบอส
+    sf::Texture bossSkillTexture1, bossSkillTexture2, bossSkillTexture3;
+    if (!bossSkillTexture1.loadFromFile("boss_skill1.jpg")) {
+        std::cerr << "Failed to load boss_skill1.jpg" << std::endl;
+    }
+    if (!bossSkillTexture2.loadFromFile("boss_skill2.jpg")) {
+        std::cerr << "Failed to load boss_skill2.jpg" << std::endl;
+    }
+    if (!bossSkillTexture3.loadFromFile("boss_skill3.jpg")) {
+        std::cerr << "Failed to load boss_skill3.jpg" << std::endl;
+    }
+
+    // กำหนดสกิลของบอสให้ล็อคไว้ในสล็อตแต่ละช่อง
+    bossSkillSprites[0].setTexture(bossSkillTexture1);
+    bossSkillSprites[1].setTexture(bossSkillTexture2);
+    bossSkillSprites[2].setTexture(bossSkillTexture3);
+
+    // ปรับขนาดและตำแหน่งรูปสกิลของบอส
+    for (size_t i = 0; i < bossSkillSprites.size(); ++i) {
+        float scale = 30 / std::max(bossSkillSprites[i].getTexture()->getSize().x, bossSkillSprites[i].getTexture()->getSize().y);
+        bossSkillSprites[i].setScale(scale, scale);
+
+        // ปรับตำแหน่งรูปสกิลให้อยู่กลางหัวสล็อตของบอส
+        float skillX = positionsX[i + 3] + 50 - (bossSkillSprites[i].getGlobalBounds().width / 2);
+        float skillY = 25 - (bossSkillSprites[i].getGlobalBounds().height / 2);
+        bossSkillSprites[i].setPosition(skillX, skillY);
+    }
+
     bool spinning = false;
     int currentPair = 0;
     sf::Clock spinClock, stopClock, animationClock;
@@ -369,7 +400,9 @@ int main() {
                             // แสดงรูปสกิลที่เลือกไว้บนหัวสล็อต
                             if (selectedSkills.size() <= 3) {
                                 slotSkillSprites[selectedSkills.size() - 1] = skillButtons[i].getSprite();
-                                slotSkillSprites[selectedSkills.size() - 1].setPosition(positionsX[selectedSkills.size() - 1] + 20 , 10);
+                                float skillX = positionsX[selectedSkills.size() - 1] + 50 - (skillButtons[i].getSprite().getGlobalBounds().width / 2);
+                                float skillY = 40 - (skillButtons[i].getSprite().getGlobalBounds().height / 2);
+                                slotSkillSprites[selectedSkills.size() - 1].setPosition(skillX, skillY);
                             }
                         }
                     }
@@ -397,6 +430,9 @@ int main() {
                     playerHPBar.setHP(playerHPBar.getHP() - 10); // ���������� HP
                     isAttacking2 = true; // ���͹����ѹ����
                     attack2.reset();
+
+                    // ใช้สกิลของบอสช่อง 1
+                    std::cout << "Boss uses skill 1 on slot 1" << std::endl;
                 }
                 else if (result == "Player Wins!") {
                     if (selectedSkills.size() > 0) {
@@ -431,6 +467,9 @@ int main() {
                     playerHPBar.setHP(playerHPBar.getHP() - 10); // ���������� HP
                     isAttacking2 = true; // ���͹����ѹ����
                     attack2.reset();
+
+                    // ใช้สกิลของบอสช่อง 2
+                    std::cout << "Boss uses skill 2 on slot 2" << std::endl;
                 }
                 else if (result == "Player Wins!") {
                     if (selectedSkills.size() > 1) {
@@ -465,6 +504,9 @@ int main() {
                     playerHPBar.setHP(playerHPBar.getHP() - 10); // ���������� HP
                     isAttacking2 = true; // ���͹����ѹ����
                     attack2.reset();
+
+                    // ใช้สกิลของบอสช่อง 3
+                    std::cout << "Boss uses skill 3 on slot 3" << std::endl;
                 }
                 else if (result == "Player Wins!") {
                     if (selectedSkills.size() > 2) {
@@ -554,6 +596,12 @@ int main() {
         // Draw everything
         window.clear();
         window.draw(backgroundSprite); // �Ҵ�����ѧ
+
+        // วาดรูปสกิลของบอส
+        for (size_t i = 0; i < bossSkillSprites.size(); ++i) {
+            window.draw(bossSkillSprites[i]);
+        }
+
         if (!isAttacking1 && !isAttacking2) {
             window.draw(idle1.getSprite()); // �Ҵ͹����ѹ idle1
             window.draw(idle2.getSprite()); // �Ҵ͹����ѹ idle2
