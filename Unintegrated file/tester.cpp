@@ -458,7 +458,7 @@ void store::displayItems(sf::RenderWindow &window, sf::Font &font)
         { // Display name if not sold out
             sf::Text itemText(forsale[i].name, font, 20);
             itemText.setFillColor(sf::Color::White);
-            itemText.setPosition(160 + i * 205, 270);
+            itemText.setPosition(160 + i * 160, 230);
             window.draw(itemText);
         }
         else
@@ -478,9 +478,9 @@ void store::displayCosts(sf::RenderWindow &window, sf::Font &font)
     {
         if (forsale[i].soldOut)
         {
-            sf::Text soldOutPriceText("SOLD \n OUT", font, 30);
+            sf::Text soldOutPriceText("SOLD \n OUT!", font, 30);
             soldOutPriceText.setFillColor(sf::Color::Red); // สีแดงสำหรับสินค้าที่หมด
-            soldOutPriceText.setPosition(140 + i * 200, 295);
+            soldOutPriceText.setPosition(155 + i * 190, 250);
             window.draw(soldOutPriceText);
         }
         else
@@ -800,7 +800,7 @@ int main()
     // Create text for store label
     sf::Text storeText("STORE", font, 45);
     storeText.setFillColor(sf::Color::Yellow);
-    storeText.setPosition(320, 30);
+    storeText.setPosition(320, 70);
 
     // Create button to show money
     sf::RectangleShape showmoney(sf::Vector2f(230, 50));
