@@ -212,13 +212,13 @@ void Player::handleShipReduction()
     float randomValue = (rand() % 100) / 100.0; // สุ่มค่าระหว่าง 0.0 ถึง 1.0
     if (randomValue <= 0.3)
     { // โอกาส 30%
-        // เพิ่ม HP 20% ของ HP Max
+        // เพิ่ม HP 25% ของ HP Max
         hp += hpMax * 0.25;
         if (hp > hpMax)
             hp = hpMax; // ให้ HP ไม่เกินค่าของ HP Max
         cout << name << " gained 20% HP! HP is now " << hp << endl;
 
-        // เพิ่ม ship 20% ของ ship Max
+        // เพิ่ม ship 35% ของ ship Max
         ship += shipMax * 0.35;
         if (ship > shipMax)
             ship = shipMax; // ให้ ship ไม่เกินค่าของ ship Max
