@@ -553,10 +553,10 @@ void SpinSlot(int chips, char* RandomizedChar, vector<char> BaseChar, int vecsiz
         cerr << "Failed to load SlotBackground image!" << endl;
     }
     Sprite StoreBackground(StoreBackgroundTexture);
-    StoreBackground.setPosition(100,100);
-
-
-
+    StoreBackground.setPosition(0,0);
+    float scaleX = 800.0f / StoreBackgroundTexture.getSize().x;
+    float scaleY = 600.0f / StoreBackgroundTexture.getSize().y;
+    StoreBackground.setScale(scaleX, scaleY); // ปรับขนาดภาพให้พอดี
 
 
     RectangleShape spinButton = DrawSpinButton();
@@ -774,7 +774,10 @@ GameState gameState = SLOT_MACHINE;
         return -1;
     }
     Sprite SlotBackground(SlotBackgroundTexture);
-    SlotBackground.setPosition(100,100);
+    SlotBackground.setPosition(0,0);
+    float scaleX = 800.0f / SlotBackgroundTexture.getSize().x;
+    float scaleY = 600.0f / SlotBackgroundTexture.getSize().y;
+    SlotBackground.setScale(scaleX, scaleY); // ปรับขนาดภาพให้พอดี
     
 
     Vector2f originalScale(1.f, 1.f);
