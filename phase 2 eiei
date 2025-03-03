@@ -194,7 +194,7 @@ public:
 
 class SkillButton {
 public:
-    SkillButton(const std::string& iconPath, float x, float y, float radius, int skillIndex, int skillLimit)
+    SkillButton(const sf::Texture& texture, float x, float y, float radius, int skillIndex, int skillLimit)
         : skillIndex(skillIndex), skillLimit(skillLimit) {
         // สร้างปุ่มวงกลม
         button.setRadius(radius);
@@ -203,11 +203,7 @@ public:
         button.setOutlineColor(sf::Color::White);
         button.setOutlineThickness(2);
 
-        // โหลดรูปสกิล
-        if (!texture.loadFromFile(iconPath)) {
-            std::cerr << "Failed to load " << iconPath << std::endl;
-            return; // หยุดการทำงานหากโหลดไม่สำเร็จ
-        }
+        // ตั้งค่าข้อมูลรูปสกิล
         sprite.setTexture(texture);
 
         // ปรับขนาดรูปภาพให้พอดีกับปุ่มวงกลม
@@ -248,11 +244,23 @@ public:
 
 private:
     sf::CircleShape button;
-    sf::Texture texture;
     sf::Sprite sprite;
     int skillIndex; // ดัชนีสกิล
     int skillLimit; // จำนวนครั้งที่สามารถใช้สกิลได้
 };
+
+std::vector<sf::Texture> loadSkillIcons(const std::vector<std::string>& iconPaths) {
+    std::vector<sf::Texture> skillTextures;
+    for (const auto& path : iconPaths) {
+        sf::Texture texture;
+        if (!texture.loadFromFile(path)) {
+            std::cerr << "Failed to load " << path << std::endl;
+            continue; // ข้ามไปหากโหลดไม่สำเร็จ
+        }
+        skillTextures.push_back(texture);
+    }
+    return skillTextures;
+}
 
 void showGameOverScreenwin(RenderWindow& window) {
     // โหลดฟอนต์
@@ -417,6 +425,16 @@ int main() {
         return -1;
     }
 
+    // โหลดรูปสกิล
+    std::vector<std::string> iconPaths = { "skill1.jpg", "skill2.jpg", "skill3.jpg", "skill4.jpg" };
+    std::vector<sf::Texture> skillTextures = loadSkillIcons(iconPaths);
+
+    // สร้างปุ่มสกิล
+    std::vector<SkillButton> skillButtons;
+    for (size_t i = 0; i < skillTextures.size(); ++i) {
+        skillButtons.emplace_back(skillTextures[i], 25 + i * 100, 530, 30, i, 1);
+    }
+
     // Load background
     sf::Texture backgroundTexture1, backgroundTexture2, backgroundTexture3;
     if (!backgroundTexture1.loadFromFile("Ruaysus2.png")) {
@@ -481,13 +499,6 @@ int main() {
     // HP Bar setup
     HPBar playerHPBar(50, 500, 300, 20, 100, 10); // Player HP Bar
     HPBar bossHPBar(450, 500, 300, 20, 100, 10);  // Boss HP Bar
-
-    // Skill Buttons setup
-    std::vector<SkillButton> skillButtons;
-    skillButtons.emplace_back("skill1.jpg", 25, 530, 30, 0, 1); // ปุ่มที่ 1 (skillLimit = 2)
-    skillButtons.emplace_back("skill2.jpg", 125, 530, 30, 1, 1); // ปุ่มที่ 2 (skillLimit = 3)
-    skillButtons.emplace_back("skill3.jpg", 225, 530, 30, 2, 1); // ปุ่มที่ 3 (skillLimit = 1)
-    skillButtons.emplace_back("skill4.jpg", 325, 530, 30, 3, 1); // ปุ่มที่ 4 (skillLimit = 2)
 
     // เก็บลำดับการเลือกสกิล
     std::vector<int> selectedSkills; // ลำดับการเลือกสกิล
